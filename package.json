@@ -1,0 +1,10 @@
+{
+    "name": "node-tetris",
+    "author": {
+        "name": "Daniel Oliveira",
+        "email": "daniel.go@msn.com"
+    },
+    "devDependencies": {
+        "serve": "^11.2.0"
+    }
+}
