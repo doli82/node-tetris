@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                display: inline-flex;
+            }
+            canvas {
+                border: 1px solid black;
+            }
+            ul.players-list{
+                margin: 0;
+                padding: 16px;
+                background: #68717c70;
+                border: 6px solid #949aa3;
+            }
+            ul.players-list li {
+                list-style: none;
+            }
+            ul.players-list li:first-child {
+                font-size: 24px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <ul class="players-list">
+            <li>Outros Jogadores</li>
+            <li><small><i>Escolha um adversário para desafiar</i></small></li>
+            <li>&nbsp;</li>
+            <li>Daniel</li>
+            <li>Dalilla</li>
+        </ul>
+        <script type="module" src="main.js"></script>
+    </body>
+</html>
