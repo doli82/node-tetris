@@ -1,0 +1,16 @@
+{
+  "name": "node-tetris-server",
+  "version": "0.0.1",
+  "description": "Servidor do game tetris-node",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "socket.io": "^2.3.0",
+    "websocket": "^1.0.30"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.1"
+  }
+}
