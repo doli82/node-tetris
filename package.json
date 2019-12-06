@@ -4,6 +4,9 @@
         "name": "Daniel Oliveira",
         "email": "daniel.go@msn.com"
     },
+    "scripts": {
+        "start": "serve ."
+    },
     "devDependencies": {
         "serve": "^11.2.0"
     }
