@@ -1,4 +1,4 @@
-export default function renderScreen(canvas, game ) {
+export default function renderScreen(canvas, game, document ) {
     if( !canvas || !canvas.getContext ) {
         console.log('Não foi possível renderizar o jogo! O objeto canvas não pode ser acessado.');
         return;
@@ -24,6 +24,7 @@ export default function renderScreen(canvas, game ) {
     }
 
     function drawShape( shape ) {
+        if ( !shape ) return;
         context.beginPath();
         context.fillStyle = 'red';
         context.strokeStyle = 'black';
@@ -108,8 +109,8 @@ export default function renderScreen(canvas, game ) {
         context.clearRect( 0, 0, game.width, game.height );
         if( !game.isPaused() ) {
             drawPreviousShapes();
-            drawShape( game.currentShape );
-            drawScores( game.players );
+            drawShape( game.getCurrentShape() );
+            drawScores( game.getPlayers() );
 
             if( game.isGameOver() ) {
                 drawGameOver();
@@ -125,8 +126,56 @@ export default function renderScreen(canvas, game ) {
         window.requestAnimationFrame(renderGame);
         // }
     }
+    function updatePlayersList( players ) {
+        const playersNode = document.getElementById("players");
+        playersNode.innerHTML = '';
+        const me = game.getCurrentPlayer();
+        players.forEach( player => {
+            if ( me && player.name === me.name ) {
+                return;
+            }
+            const a = document.createElement("a");
+            const li = document.createElement("li");
+            a.href = 'javascript:challenge("' + player.name + '")';
+            a.innerText = player.name;
+            a.title = 'Desafiar este jogador';
+            li.appendChild(a)
+            playersNode.appendChild( li );
+        } );
+    }
+    function removePlayerFromList( name ) {
+        const playersItems = document.getElementById("players").childNodes;
+        playersItems.forEach( (item, index ) => {
+            if ( item.childNodes.item(0).innerText === name ) {
+                item.remove();
+            }
+        });
+    }
+
+    function displayChallengeAlerts( packet ) {
+        if( packet.refused ) {
+            alert('O jogador ' + packet.challenger + ' recusou a disputa.');
+        } else if ( !packet.accepted && packet.challenger ) {
+            if ( confirm('O jogador ' + packet.challenger + ' desafiou você! Deseja aceitar? ') ) {
+                console.log('aceitar');
+                game.respondChallenge(packet.challenger, true );
+            } else {
+                console.log('recusar');
+                game.respondChallenge(packet.challenger, false );
+            }
+        }
+    }
+
+    window.challenge = (playerName) => {
+        if ( confirm('Desafiar '+ playerName + '?') ) {
+            game.requestChallenge(playerName);
+        }
+    };
 
     return {
-        renderGame
+        renderGame,
+        updatePlayersList,
+        removePlayerFromList,
+        displayChallengeAlerts
     }
 }
