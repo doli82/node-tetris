@@ -1,16 +1,25 @@
 {
   "name": "node-tetris-server",
   "version": "0.0.1",
-  "description": "Servidor do game tetris-node",
+  "description": "Servidor do game node-tetris",
   "license": "MIT",
+  "author": {
+    "name": "Daniel Oliveira",
+    "email": "daniel.go@msn.com"
+  },
+  "private": true,
+  "main": "src/server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js --ignore __tests__",
+    "test": "jest"
   },
   "dependencies": {
     "socket.io": "^2.3.0",
     "websocket": "^1.0.30"
   },
   "devDependencies": {
+    "jest": "^25.2.4",
     "nodemon": "^2.0.1"
   }
 }
