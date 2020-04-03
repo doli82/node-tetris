@@ -5,7 +5,7 @@
         "email": "daniel.go@msn.com"
     },
     "scripts": {
-        "start": "serve ."
+        "start": "serve src"
     },
     "devDependencies": {
         "serve": "^11.3.0"
