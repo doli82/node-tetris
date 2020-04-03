@@ -58,7 +58,7 @@ module.exports = class GameServer {
       }
       return false;
   }
-    generateChallenge( challenger, adversary ) {
+  generateChallenge( challenger, adversary ) {
         const challenge = {
             id: this.getUniqueID(),
             shapes: [],
@@ -80,8 +80,8 @@ module.exports = class GameServer {
         }
         this.challenges.push( challenge );
         return challenge.id;
-    }
-  unregisterPlayer(uid) {
+  }
+  unregisterPlayer( uid ) {
     this.players = this.players.filter(element => element.uid !== uid);
     this.connections.forEach( connection => {
       this.allowedActions.PlayersList( { type: 'PlayersList' }, connection);
@@ -111,7 +111,6 @@ module.exports = class GameServer {
           PlayersList( packet, connection ) {
               console.log('Lista de jogadores enviada para:', connection.id);
               connection.send( JSON.stringify( Object.assign( packet, { players: gameserver.getRegisteredPlayers() })));
-
           },
           ChallengeRequested(packet, connection) {
               const challenger = gameserver.getPlayerByUid( packet.uid );
@@ -186,11 +185,32 @@ module.exports = class GameServer {
             if( packet.player && gameserver.players.find(element => element.uid === packet.player.uid ) ) {
                 const challenge = gameserver.challenges.find(element => element.id === packet.challengeid );
                 if( packet.challengeid && challenge && packet.reason ) {
-                    if ( challenge.adversary.name ===  packet.player.name ) {
-                        challenge.adversary.status = packet.reason;
+                    if ( challenge.adversary.name === packet.player.name ) {
+                        if ( challenge.challenger.status === 'gameover' && challenge.challenger.score < challenge.adversary.score ) {
+                            challenge.adversary.status = 'winner';
+                        } else {
+                            challenge.adversary.status = packet.reason;
+                        }
                     } else if( challenge.challenger.name ===  packet.player.name  ) {
-                        challenge.challenger.status = packet.reason;
+                        if ( challenge.adversary.status === 'gameover' && challenge.adversary.score < challenge.challenger.score) {
+                            challenge.challenger.status = 'winner';
+                        } else {
+                            challenge.challenger.status =  packet.reason;
+                        }
                     }
+
+                    if (
+                        challenge.challenger.status === challenge.adversary.status && 
+                        challenge.adversary.status === 'gameover' && 
+                        challenge.challenger.score !== challenge.adversary.score 
+                    ) {
+                        if( challenge.challenger.score > challenge.adversary.score ) {
+                            challenge.challenger.status = 'winner';
+                        } else {
+                            challenge.adversary.status = 'winner';
+                        }
+                    }
+
                     const challenger = gameserver.getPlayerByName( challenge.challenger.name );
                     const adversary = gameserver.getPlayerByName( challenge.adversary.name );
 
