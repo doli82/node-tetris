@@ -64,11 +64,13 @@ module.exports = class GameServer {
             shapes: [],
             challenger: {
                 name: challenger.name,
-                score: 0
+                score: 0,
+                status: 'playing'
             },
             adversary: {
                 name: adversary.name,
-                score: 0
+                score: 0,
+                status: 'playing'
             }
         };
 
@@ -179,6 +181,30 @@ module.exports = class GameServer {
                       console.log('Pontuação do jogador %s atualizada na disputa %s', packet.player.name, challenge.id);
                   }
               }
+          },
+          ChallengeEnded(packet, connection) {
+            if( packet.player && gameserver.players.find(element => element.uid === packet.player.uid ) ) {
+                const challenge = gameserver.challenges.find(element => element.id === packet.challengeid );
+                if( packet.challengeid && challenge && packet.reason ) {
+                    if ( challenge.adversary.name ===  packet.player.name ) {
+                        challenge.adversary.status = packet.reason;
+                    } else if( challenge.challenger.name ===  packet.player.name  ) {
+                        challenge.challenger.status = packet.reason;
+                    }
+                    const challenger = gameserver.getPlayerByName( challenge.challenger.name );
+                    const adversary = gameserver.getPlayerByName( challenge.adversary.name );
+
+                    const responsePacket = { type: 'RequestChallengeData', challengeid: challenge.id };
+
+                    const con = gameserver.connections.filter(
+                        element => element.id === challenger.uid || element.id === adversary.uid
+                    );
+                    con.forEach(
+                        element => gameserver.allowedActions.RequestChallengeData( responsePacket, element )
+                    );
+                    console.log('O jogador %s esta fora da disputa %s', packet.player.name, challenge.id);
+                }
+            }
           }
       };
   };
@@ -187,7 +213,7 @@ module.exports = class GameServer {
       let packet;
       try {
           packet = JSON.parse(message);
-      } catch {}
+      } catch(err) {}
 
       if( !packet || !packet.type ) {
           return;
