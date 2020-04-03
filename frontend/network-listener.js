@@ -60,11 +60,10 @@ export default function createNetworkListener (gameServerUri) {
 
     // Log messages from the server
     websocket.onmessage = ( message ) => {
-        console.log('Server message: ' + message.data);
         let packet;
         try {
             packet = JSON.parse(message.data);
-        } catch {}
+        } catch(err) {}
 
         if( !packet || !packet.type ) {
             return;
@@ -158,7 +157,14 @@ export default function createNetworkListener (gameServerUri) {
         } catch (err) {
             console.log('Erro ao enviar pontuação', err);
         }
-
+    }
+    function sendGameOver( player ) {
+        try {
+            const challenge = JSON.parse( sessionStorage.getItem('currentChallenge') );
+            sendPacket( { type: 'ChallengeEnded', player, challengeid: challenge.challengeid, reason: 'gameover' } );
+        } catch (err) {
+            console.log('Erro ao enviar a finalização da disputa', err);
+        }
     }
     function sendRequestChallenge( uid, adversary ) {
         sendPacket( { type: 'ChallengeRequested', uid, adversary } );
@@ -188,6 +194,7 @@ export default function createNetworkListener (gameServerUri) {
         sendRequestChallenge,
         sendResponseChallenge,
         sendCurrentScore,
+        sendGameOver,
         challengeRequested,
         challengeResponded,
         challengeDataReceived,

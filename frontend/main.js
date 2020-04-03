@@ -1,5 +1,6 @@
 import { createGame } from './tetris.js';
 import createKeyboardListener from './keyboard-listener.js';
+import createMouseListener from './mouse-listener.js';
 import createRenderer from './render-screen.js';
 import createNetworkListener from './network-listener.js';
 
@@ -11,24 +12,24 @@ canvas.width = gameWidth;
 canvas.height = gameHeight;
 
 const game = createGame(gameWidth, gameHeight);
-
 const network = createNetworkListener( 'ws://192.168.31.7:3300/' );
+const keyboardListener = createKeyboardListener();
+const mouseListener = createMouseListener();
+const renderer = createRenderer( canvas, game, document );
+
 game.challengeRequested.subscribe( network.sendRequestChallenge );
 game.challengeResponded.subscribe( network.sendResponseChallenge );
 game.scoreChanged.subscribe( network.sendCurrentScore );
+game.challengeEnded.subscribe( network.sendGameOver );
 // network.subscribe( game.pause );
-
-const keyboardListener = createKeyboardListener();
 
 keyboardListener.subscribe( game.moveShape );
 // keyboardListener.subscribe( network.challenge.moveShape );
-
 keyboardListener.subscribe( game.pause );
 keyboardListener.subscribe( game.newGame );
 
-// game.currentPlayerChange.subscribe()
+mouseListener.subscribe( renderer.buttonClick );
 
-const renderer = createRenderer( canvas, game, document );
 network.playersListUpdate.subscribe( renderer.updatePlayersList );
 network.playerRegistered.subscribe( (player) => game.setCurrentPlayer( player.uid, player.name ) );
 network.playerRegistered.subscribe( (player) => renderer.removePlayerFromList( player.name ) );
