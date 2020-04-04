@@ -2,59 +2,17 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-            }
-            body {
-                display: inline-flex;
-            }
-            canvas {
-                background-color: black;
-            }
-            ul.players-list{
-                margin: 0;
-                padding: 16px;
-                background: #68717c70;
-                border: 6px solid #949aa3;
-            }
-            ul.players-list li {
-                list-style: none;
-            }
-            ul.players-list > li:first-child {
-                font-size: 24px;
-                font-weight: bold;
-            }
-            #players {
-                padding: 0;
-            }
-            #players li {
-                margin: 2px;
-            }
-            #players li a{
-                padding: 3px;
-                display: block;
-                font-weight: bold;
-                text-decoration: none;
-                font-size: 20px;
-                color: #4fab0a;
-            }
-            #players li:hover {
-                background-color: rgba(80, 171, 10, 0.73);
-            }
-            #players li:hover a {
-                color: #ffffff;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="icon" href="assets/icon.png" />
     </head>
     <body>
         <canvas id="canvas"></canvas>
         <ul class="players-list">
-            <li>Outros Jogadores</li>
+            <li class="actions"><button onclick="window.newGame()">Jogar Sozinho (F2)</button></li>
+            <li class="title">Jogadores Disponíveis</li>
             <li><small><i>Escolha um adversário para desafiar</i></small></li>
             <li>&nbsp;</li>
-            <li>
+            <li class="players-list-container">
                 <ul id="players"></ul>
             </li>
         </ul>

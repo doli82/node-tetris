@@ -1,0 +1,67 @@
+* {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    box-sizing: border-box;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+}
+body {
+    display: inline-flex;
+    -webkit-font-smoothing: antialiased;
+}
+button {
+    cursor: pointer;
+}
+canvas {
+    background-color: black;
+}
+.players-list-container {
+    overflow-y: auto; 
+    max-height: 430px;
+}
+ul.players-list{
+    margin: 0;
+    padding: 16px;
+    height: 600px;
+    background: #68717c70;
+    border: 6px solid #949aa3;
+}
+ul.players-list li {
+    list-style: none;
+}
+ul.players-list li.actions button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #1f1c1c;
+    color: #fff;
+    font-weight: bold;
+}
+ul.players-list li.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+#players {
+    padding: 0;
+}
+#players li {
+    margin: 2px;
+}
+#players li a {
+    padding: 3px;
+    display: block;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 20px;
+    color: #4fab0a;
+}
+#players li:not(.info):hover {
+    background-color: #8dc645;
+}
+#players li:hover a {
+    color: #ffffff;
+}
