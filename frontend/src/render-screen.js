@@ -4,7 +4,7 @@ export default function renderScreen(canvas, game, document ) {
         return;
     }
     const context = canvas.getContext('2d', {alpha: false});
-    const colors = [ 'cyan', 'orange', 'blue', 'yellow', 'red', 'green', 'purple' ];
+    const colors = [ '#cfd0d5', '#fd823f', '#007ce0', '#fabd08', '#fe1143', '#8dc645', '#ce7bde' ];
     let start = null;
     let challengedBy = null;
     let challenging = null;
@@ -72,7 +72,7 @@ export default function renderScreen(canvas, game, document ) {
 
     function drawGameOverScreen() {
         const width = canvas.width * 2 / 3;
-        const height = 90;
+        const height = 120;
         const x = (canvas.width - width) / 2;
         const y = ( canvas.height - height) / 2;
 
@@ -80,14 +80,16 @@ export default function renderScreen(canvas, game, document ) {
 
         drawRoundedBox(context, x, y, width, height, 9);
 
-        context.fillStyle = 'white';
-        context.font = 'bold 24px Georgia';
-        context.shadowBlur = 6;
-        context.fillText(
-            text,
-            (canvas.width - context.measureText(text).width) / 2,
-            (canvas.height + 18 ) / 2,
+        drawText(context,
+            (canvas.width - getTextWidth(context, text, 24)) / 2,
+            (canvas.height) / 2,
+            text, 24, 'white'
         );
+
+        const close = 'Fechar';
+        clickable.push( drawButton(context, (canvas.width - getTextWidth(context, close, 14) - 8)/2, (canvas.height + 25) / 2, close, ( event ) => {
+            game.resetGame();
+        }) );
     }
 
     function drawPausedScreen() {
@@ -100,13 +102,10 @@ export default function renderScreen(canvas, game, document ) {
 
         drawRoundedBox(context, x, y, width, height, 9);
 
-        context.fillStyle = 'white';
-        context.font = 'bold 24px Georgia';
-        context.shadowBlur = 6;
-        context.fillText(
-            text,
-            (canvas.width - context.measureText(text).width) / 2,
+        drawText(context,
+            (canvas.width - getTextWidth(context, text, 24)) / 2,
             (canvas.height + 18 ) / 2,
+            text, 24, 'white'
         );
     }
 
@@ -161,7 +160,6 @@ export default function renderScreen(canvas, game, document ) {
             textLine2, 16, 'white'
         );
         clickable.push( drawButton(context, x + 10, y + 85, 'Cancelar', ( event ) => {
-            // game.respondChallenge(challengerName, true );
             challenging = null;
         }) );
 
@@ -273,6 +271,12 @@ export default function renderScreen(canvas, game, document ) {
             li.appendChild(a);
             playersNode.appendChild( li );
         } );
+        if ( players.length < 2 ) {
+            const li = document.createElement("li");
+            li.setAttribute('class', 'info');
+            li.innerHTML = '<i>Nenhum jogador online</i>';
+            playersNode.appendChild( li );
+        }
     }
     function removePlayerFromList( name ) {
         const playersItems = document.getElementById("players").childNodes;
@@ -284,10 +288,14 @@ export default function renderScreen(canvas, game, document ) {
     }
 
     function displayChallengeAlerts( packet ) {
+        const me = game.getCurrentPlayer();
         if ( packet.type === 'ChallengeRequested' ) {
-            challengedBy = packet.challenger;
-        } else if( packet.type === 'ChallengeResponded' ) {
-            const me = game.getCurrentPlayer();
+            if( me.status === 'playing' ) {                
+                game.respondChallenge(packet.challenger, false );
+            } else {
+                challengedBy = packet.challenger;
+            }
+        } else if( packet.type === 'ChallengeResponded' ) {            
             if( packet.refused && packet.challenger !== me.name ) {
                 alert('O jogador ' + packet.challenger + ' recusou a disputa.');
             }
@@ -300,13 +308,11 @@ export default function renderScreen(canvas, game, document ) {
         //     game.requestChallenge(playerName);
         // }
     };
+    window.newGame = (playerName) => { 
+        game.newGame();
+    };
 
     function loadImages() {
-        const image_winner = new Image();
-        image_winner.onload = () => {
-            images.push({ winner: image_winner });
-        };
-        image_winner.src = 'assets/left-img.gif';
 
         const image_trophy = new Image();
         image_trophy.onload = () => {
