@@ -8,7 +8,9 @@ export default function renderScreen(canvas, game, document ) {
     let start = null;
     let challengedBy = null;
     let challenging = null;
+    let challengeResults = false;
     let clickable = [];
+    let images = [];
 
     function drawBlock( x, y ) {
         context.fillRect(
@@ -58,7 +60,8 @@ export default function renderScreen(canvas, game, document ) {
         if( !players ) return;
         let verticalPosition = 20;
         players.map( player => {
-            const text = `${player.name + (player.status==='gameover' ? ' (GameOver)' : '')}: ${player.score}`;
+            const statusText = player.status==='gameover' ? ' (GameOver)' : player.status==='winner' ? ' (Winner)':'';
+            const text = `${player.name + statusText}: ${player.score}`;
             context.fillStyle = 'white';
             context.font = "bold 16px Georgia";
             context.shadowBlur = 3;
@@ -167,6 +170,46 @@ export default function renderScreen(canvas, game, document ) {
             challenging = null;
         } ));
     }
+    function drawWinnerScreen() {
+        const width = canvas.width;
+        const height = canvas.height;
+        const img = images.find(image=> Object.keys(image).find(key=>key === 'trophy'));
+        context.strokeStyle = '#e6e9ec';
+        context.fillRect(0, 0, width, height);
+        context.stroke();
+        
+        const title = 'Parabéns!';
+        const detail = 'Você venceu';
+        const close = 'Fechar';
+
+        drawText(context, ((width - getTextWidth(context, title, 34)) / 2) - 1, 49, title, 34, '#555' );
+        drawText(context, (width - getTextWidth(context, title, 34)) / 2, 50, title, 34, '#ffc328' );
+        if( img ) {
+            drawTrophyAnimation(img.trophy, img.frame, (width - 200) / 2, 80, 200, 200 );
+        }
+        drawText(context, (width - getTextWidth(context, detail, 18))/2, 320, detail, 18, '#3c5a66' );
+        let lineHeight = 55;
+        game.getPlayers().map( (player, position) => {
+            const name = player.name;
+            const score = player.score;
+            const color = (player.status === 'winner') ? '#4eab0a' : '#f44336';
+
+            drawText(context, (width - getTextWidth(context, name, 24))/2, 350 + (lineHeight * position),
+                name, 24, '#3c5a66'
+            );
+            drawText(context, (width - getTextWidth(context, score, 24))/2, 374 + (lineHeight * position), score, 32, color);
+        });
+        clickable.push( drawButton(context, (width - getTextWidth(context, close, 14) - 8)/2, 450, close, ( event ) => {
+            game.resetGame();
+        }, '#3d5a66') );
+
+    }
+
+    function drawTrophyAnimation(img_object, frame, x, y, width, height) {
+        context.beginPath();
+        context.drawImage(img_object, frame * width, 0, width, height, x, y, width, height);
+        context.closePath();
+    }
     
     function renderGame( timestamp = null ) {
         if (!start) start = timestamp;
@@ -179,18 +222,22 @@ export default function renderScreen(canvas, game, document ) {
             drawScores( game.getPlayers() );
 
             if( game.isGameOver() && !challengedBy && !challenging ) {
-                drawGameOverScreen();
+                if( game.isChallenge() && game.isWinner()) {
+                    drawWinnerScreen();
+                } else {
+                    drawGameOverScreen();
+                }
             }
         } else if( !game.isGameOver() ) {
             drawPausedScreen();
         }
-
+        // drawWinnerScreen();
         if( challengedBy ) {
             drawResponseChallengeModal( challengedBy );
         } else if( challenging ) {
             drawRequestChallengeModal( challenging );
         }
-
+        
         const progress = timestamp - start;
         // element.style.left = Math.min(progress/10, 200) + "px";
         // console.log('teste');
@@ -254,6 +301,26 @@ export default function renderScreen(canvas, game, document ) {
         // }
     };
 
+    function loadImages() {
+        const image_winner = new Image();
+        image_winner.onload = () => {
+            images.push({ winner: image_winner });
+        };
+        image_winner.src = 'assets/left-img.gif';
+
+        const image_trophy = new Image();
+        image_trophy.onload = () => {
+            images.push({ trophy: image_trophy, frame: 0, speed: 172 });
+            const img = images.find(image=> Object.keys(image).find(key=>key === 'trophy'));
+            setInterval( () => {                
+                img.frame = ( img.frame < 6 ) ? img.frame + 1 : 0;
+            }, img.speed);
+        };
+        image_trophy.src = 'assets/trophy.png';
+    }
+    
+    loadImages();   
+
     return {
         renderGame,
         updatePlayersList,
@@ -278,19 +345,29 @@ function drawRoundedBox(context, x, y, width, height, radius, fillColor, strokeC
     context.stroke();
     context.closePath();
 }
-function drawButton(context, x, y, label, action=null ) {
+function drawButton(context, x, y, label, action=null, button_color=null, text_color='white' ) {
     context.beginPath();
-    const width = context.measureText(label).width + 16;
+    const width = getTextWidth(context, label, 14) + 16;
     const height = 40;
     const fontSize = 14;
-    drawRoundedBox(context, x, y, width, height, 8);
-    drawText(context, x + 8, y + (height + fontSize) / 2, label, fontSize, 'white');
+    drawRoundedBox(context, x, y, width, height, 8, button_color, button_color);
+    drawText(context, x + 8, y + (height + fontSize) / 2, label, fontSize, text_color);
     context.closePath();
     return { position: {x, y}, size: {width, height}, onClick: action };
 }
 function drawText(context, x, y, text, size, color) {
+    context.beginPath();
     context.fillStyle = color;
     context.font = `bold ${size}px Georgia`;
     context.shadowBlur = 6;
     context.fillText( text, x, y );
+    context.closePath();
+}
+function drawImageGif(context, x, y, img_object, width, height) {
+    if (img_object === null) return;
+    context.drawImage(img_object, x, y, width, height);
+}
+function getTextWidth(context, text, fontSize) {
+    context.font = `bold ${fontSize}px Georgia`;
+    return context.measureText(text).width;
 }

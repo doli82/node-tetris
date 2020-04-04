@@ -1,4 +1,4 @@
-const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) => {
+const createGame = (width=300, height=600, challenge=false, nextShapes = [] ) => {
     const cols = 10;
     const rows = 20;
     const block_width = width / cols;
@@ -7,7 +7,6 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
     let interval;
     let paused = false;
     let gameOver = false;
-    let isChallenge = false;
 
     let players = [];
     const board = createBoard(rows, cols);
@@ -70,7 +69,7 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
                     ) {
                         if (offsetY == 1 && currentShape.freezed) {
                             gameOver = true; // lose if the current shape is settled at the top most row
-                            if ( isChallenge ) {
+                            if ( isChallenge() ) {
                                 const current = getCurrentPlayer();
                                 state.challengeEnded.forEach( observerFunction => observerFunction( current ) );
                             }
@@ -134,7 +133,9 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
             clearLines();
             if ( gameOver ) {
                 const current = getCurrentPlayer();
-                players[ players.indexOf(current) ].status = 'gameover';
+                if ( !isChallenge() ) {
+                    players[ players.indexOf(current) ].status = 'gameover';
+                }
                 clearStepInterval();
                 return false;
             }
@@ -152,6 +153,13 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
     }
     function isGameOver() {
         return gameOver;
+    }
+    function isChallenge() {
+        return challenge;
+    }
+    function isWinner() {
+        const winner = players.find(player=>player.status==='winner');
+        return !!winner && !!winner.name && winner.name === getCurrentPlayer().name;
     }
     function pause( command ) {
         if ( gameOver ) return;
@@ -183,7 +191,7 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
         const current = getCurrentPlayer();        
         if ( current ) {
             players[ players.indexOf(current) ].score++;
-            if( isChallenge ) {
+            if( isChallenge() ) {
                 state.scoreChanged.forEach( observerFunction => observerFunction( current ) );
             }
         }
@@ -226,13 +234,15 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
             const currentPlayers = getPlayers();
 
             if ( getCurrentPlayer().name === challenger.name ) {
-                addPlayer( adversary.name );
-                updatePlayerData( adversary.name, adversary.score, adversary.status );
+                addPlayer( adversary.name );            
             } else {
                 addPlayer( challenger.name );
-                updatePlayerData( challenger.name, challenger.score, challenger.status );
             }
-            if( !isChallenge ) {
+
+            updatePlayerData( adversary.name, adversary.score, adversary.status );
+            updatePlayerData( challenger.name, challenger.score, challenger.status );
+
+            if( !isChallenge() ) {
                 newChallenge( servershapes );
 
             }
@@ -275,31 +285,41 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
         }
     }
 
-    function newChallenge( servershapes ) {
-        gameOver = false;
-        paused = false;
-        isChallenge = true;
+    function newChallenge( servershapes ) {        
+        challenge = true;
         nextShapes = servershapes;
         newGame();
     }
 
     function closeChallenge() {
-        isChallenge = true;
+        challenge = false;
     }
     function newGame(command=null) {
         if ( command && command.keyPressed !== 'F2') {
             return;
-        }
-        gameOver = false;
+        }        
+        resetGame();
         players.map( (player, position) => {
             players[position].status = 'playing';
         });
-        clearStepInterval();
-        clearBoard( board );
         newShape();
         resume();
     }
-
+    function resetGame() {
+        players.map( (player, position) => {
+            if( !player.uid ) {
+                removePlayer( player.name );
+            } else {
+                players[position].status = 'waiting';
+                players[position].score = 0;
+            }
+        });
+        gameOver = false;
+        paused = false;
+        currentShape = null;
+        clearStepInterval();
+        clearBoard( board );
+    }
     return {
         cols,
         rows,
@@ -319,8 +339,11 @@ const createGame = (width=300, height=600, isChalange=false, nextShapes = [] ) =
         setCurrentPlayer,
         moveShape,
         newGame,
+        resetGame,
         isGameOver,
         isPaused,
+        isChallenge,
+        isWinner,
         pause,
         requestChallenge,
         respondChallenge,
@@ -370,7 +393,6 @@ const rotateShape = ( currentShape ) => {
     }
     return shape;
 };
-
 
 const createBoard = (rowsNumber, colsNumber) => {
     const board = [];
