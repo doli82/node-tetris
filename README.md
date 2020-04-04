@@ -19,17 +19,17 @@ A parte visual deste game usa `javascript` puro e é renderizada no elemento `<c
 Os passos a seguir, levam em consideração que você já tenha o Node.js instalado em sua máquina, e esteja dentro da pasta do projeto.
 ### Subindo o Servidor
 Instale as dependências na primeira execução:
-```bash
+````bash
 cd backend
 npm install
 ````
  Em seguida inicialize o servidor
-```bash
+````bash
 npm run dev
 ````
 ### Inicializando o Frontend
 Instale as dependências na primeira execução:
-```bash
+````bash
 cd frontend
 npm install
 ````
@@ -38,7 +38,7 @@ npm install
  SERVER_IP=192.168.0.105
  ````
  Agora, inicialize a interface gráfica que poderá ser acessada em um navegador no endereço padrão http://localhost:5000.
-```bash
+````bash
 npm start
 ````
 ## **Protocolo de Mensagens**
