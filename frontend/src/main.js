@@ -4,6 +4,8 @@ import createMouseListener from './mouse-listener.js';
 import createRenderer from './render-screen.js';
 import createNetworkListener from './network-listener.js';
 
+import config from './config.js';
+
 const gameWidth = 300;
 const gameHeight = 600;
 
@@ -12,7 +14,7 @@ canvas.width = gameWidth;
 canvas.height = gameHeight;
 
 const game = createGame(gameWidth, gameHeight);
-const network = createNetworkListener( 'ws://192.168.31.7:3300/' );
+const network = createNetworkListener( `ws://${config.server_ip}:${config.server_port}/` );
 const keyboardListener = createKeyboardListener();
 const mouseListener = createMouseListener();
 const renderer = createRenderer( canvas, game, document );
