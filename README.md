@@ -3,6 +3,11 @@ Implementação do famoso game tetris para jogar multiplayer, com a intenção e
 
 ![demo](game-preview.gif)
 
+## Ou você pode jogar para testar
+
+Acesse [https://doli82.github.io/node-tetris/frontend/src/](https://doli82.github.io/node-tetris/frontend/src/) hospedado no Github Pages, com servidor hospedado no Heroku para testar. 
+
+Você pode copiar o link acima e enviar para um amigo!!
 ## Como Funciona?
 - [Backend](#backend)
 - [Frontend](#frontend)
