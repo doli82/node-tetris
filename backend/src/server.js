@@ -1,4 +1,4 @@
 const GameServer = require('./game-server');
 
-const gameserver = new GameServer(process.event.PORT || 3300);
+const gameserver = new GameServer(process.env.PORT || 3300);
 gameserver.run();

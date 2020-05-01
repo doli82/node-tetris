@@ -14,7 +14,7 @@ canvas.width = gameWidth;
 canvas.height = gameHeight;
 
 const game = createGame(gameWidth, gameHeight);
-const network = createNetworkListener( `ws://${config.server_ip}:${config.server_port}/` );
+const network = createNetworkListener( `${config.protocol}://${config.server_ip}:${config.server_port}/` );
 const keyboardListener = createKeyboardListener();
 const mouseListener = createMouseListener();
 const renderer = createRenderer( canvas, game, document );
