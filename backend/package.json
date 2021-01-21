@@ -15,7 +15,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "websocket": "^1.0.30"
   },
   "devDependencies": {
